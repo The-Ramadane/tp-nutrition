@@ -1,65 +1,89 @@
-import Image from "next/image";
+"use client"
+
+
+import { Button } from "@/components/ui/button"
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+    ComboboxTrigger,
+} from "@/components/ui/combobox"
+
+import {useEffect, useState} from "react";
+import {IFood, IFoodReduced} from "@/app/types";
+import {useRouter} from "next/navigation";
+import { Spinner } from "@/components/ui/spinner"
+
+
 
 export default function Home() {
+    const [food, setFood] = useState<IFoodReduced[]>([])
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [value, setValue] = useState<string | null>(null)
+    const router = useRouter()
+    const fechFoods = async ()=>{
+        try {
+            const response = await fetch("/api/foods/all")
+            const data = await response.json()
+            const foodsReduced : IFoodReduced[] = data.map((f: IFood) => ({
+                value: f.id.toString(),
+                label: f.name
+            }))
+            setFood(foodsReduced)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        const initialize = async ()=>{
+            await fechFoods()
+            setIsLoading(false)
+        }
+        initialize()
+
+    }, []);
+
+    useEffect(() => {
+        if (value)
+            router.push(`/food/${value}`)
+    }, [value, router]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      <>
+          {!isLoading ?
+              (
+
+                  <div className={"flex flex-col justify-center items-center h-screen  text-white"}>
+                      <h1 className={'text-4xl font-extrabold'}> Welcome to Nutripark</h1>
+                        <br/>
+                      <Combobox items={food} value={value} onValueChange={setValue}>
+                          <ComboboxTrigger render={<Button variant="outline" className="w-64 justify-between font-normal text-black">Select food...</Button>} />
+                          <ComboboxContent>
+                              <ComboboxInput showTrigger={false} placeholder="Search a food" />
+                              <ComboboxEmpty>No items found.</ComboboxEmpty>
+                              <ComboboxList>
+                                  {(item) => (
+                                      <ComboboxItem key={item.value} value={item.value}>
+                                          {item.label}
+                                      </ComboboxItem>
+                                  )}
+                              </ComboboxList>
+                          </ComboboxContent>
+                    </Combobox>
+                  </div>
+              ): (
+                  <div className={"flex justify-center items-center h-screen w-full  text-white"}>
+                      <Spinner className="size-8" />
+                  </div>
+              )
+
+          }
+
+
+      </>
   );
 }

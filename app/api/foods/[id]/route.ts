@@ -1,21 +1,14 @@
 import {foods} from "@/app/data";
+import {IFood} from "@/app/types";
+import {NextResponse} from "next/server";
 
 
-export async function GET(request: Request, {params} :{params : {name : string}} ){
-    const index = foods.findIndex((f) => f.name.toLowerCase().replace(/\s/g, '-' ) === params.name)
-
-    if (index !== -1)
-        return new  Response(JSON.stringify(foods[index]), {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 200
-        })
+export async function GET(request: Request, {params} :{params : Promise<{id : string}>} ){
+    const { id } = await params
+    const data : IFood | undefined= foods.find((f : IFood) => f.id === Number(id))
+    
+    if (data)
+        return NextResponse.json(data)
     else
-        return new Response(JSON.stringify(foods[index]), {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 404
-        })
+        return NextResponse.json({message: "Not found"}, {status: 404})
 }
