@@ -1,5 +1,5 @@
-import {foods} from "@/app/data";
-import {IFood} from "@/app/types";
+import {foods} from "@/data";
+import {IFood} from "@/types";
 import {NextResponse} from "next/server";
 
 

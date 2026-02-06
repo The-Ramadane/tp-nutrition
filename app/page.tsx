@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/combobox"
 
 import {useEffect, useState} from "react";
-import {IFood, IFoodReduced} from "@/app/types";
+import {IFood, IFoodReduced} from "@/types";
 import {useRouter} from "next/navigation";
 import { Spinner } from "@/components/ui/spinner"
 
@@ -54,14 +54,14 @@ export default function Home() {
 
   return (
       <>
-          {!isLoading ?
+          { !isLoading ?
               (
 
                   <div className={"flex flex-col justify-center items-center h-screen  text-white"}>
                       <h1 className={'text-4xl font-extrabold'}> Welcome to Nutripark</h1>
                         <br/>
                       <Combobox items={food} value={value} onValueChange={setValue}>
-                          <ComboboxTrigger render={<Button variant="outline" className="w-64 justify-between font-normal text-black">Select food...</Button>} />
+                          <ComboboxTrigger render={<Button variant="outline" className="w-64 justify-between font-normal text-silver">Select food...</Button>} />
                           <ComboboxContent>
                               <ComboboxInput showTrigger={false} placeholder="Search a food" />
                               <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -75,7 +75,8 @@ export default function Home() {
                           </ComboboxContent>
                     </Combobox>
                   </div>
-              ): (
+              ) :
+              (
                   <div className={"flex justify-center items-center h-screen w-full  text-white"}>
                       <Spinner className="size-8" />
                   </div>
